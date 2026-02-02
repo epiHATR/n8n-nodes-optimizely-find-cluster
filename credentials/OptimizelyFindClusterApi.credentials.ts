@@ -11,8 +11,20 @@ export class OptimizelyFindClusterApi implements ICredentialType {
     icon = 'file:example.svg';
     properties: INodeProperties[] = [
         {
-            displayName: 'API Key',
-            name: 'apiKey',
+            displayName: 'Microsoft Authentication URL',
+            name: 'authUrl',
+            type: 'string',
+            default: 'https://login.microsoftonline.com/',
+        },
+        {
+            displayName: 'Application ID',
+            name: 'applicationId',
+            type: 'string',
+            default: '',
+        },
+        {
+            displayName: 'Application Secret',
+            name: 'applicationSecret',
             type: 'string',
             typeOptions: {
                 password: true,
@@ -20,16 +32,16 @@ export class OptimizelyFindClusterApi implements ICredentialType {
             default: '',
         },
         {
-            displayName: 'API URL',
-            name: 'apiUrl',
+            displayName: 'Subscription ID',
+            name: 'subscriptionId',
             type: 'string',
-            default: 'https://api.optimizely.com',
+            default: '',
         },
     ];
     test = {
         request: {
-            baseURL: '={{$credentials.apiUrl}}',
-            url: '/',
+            baseURL: '={{$credentials.authUrl}}',
+            url: '',
         },
     };
 }

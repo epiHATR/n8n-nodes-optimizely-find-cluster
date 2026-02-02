@@ -9,8 +9,20 @@ class OptimizelyFindClusterApi {
         this.icon = 'file:example.svg';
         this.properties = [
             {
-                displayName: 'API Key',
-                name: 'apiKey',
+                displayName: 'Microsoft Authentication URL',
+                name: 'authUrl',
+                type: 'string',
+                default: 'https://login.microsoftonline.com/',
+            },
+            {
+                displayName: 'Application ID',
+                name: 'applicationId',
+                type: 'string',
+                default: '',
+            },
+            {
+                displayName: 'Application Secret',
+                name: 'applicationSecret',
                 type: 'string',
                 typeOptions: {
                     password: true,
@@ -18,16 +30,16 @@ class OptimizelyFindClusterApi {
                 default: '',
             },
             {
-                displayName: 'API URL',
-                name: 'apiUrl',
+                displayName: 'Subscription ID',
+                name: 'subscriptionId',
                 type: 'string',
-                default: 'https://api.optimizely.com',
+                default: '',
             },
         ];
         this.test = {
             request: {
-                baseURL: '={{$credentials.apiUrl}}',
-                url: '/',
+                baseURL: '={{$credentials.authUrl}}',
+                url: '',
             },
         };
     }
