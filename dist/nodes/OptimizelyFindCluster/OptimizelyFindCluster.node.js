@@ -47,6 +47,10 @@ class OptimizelyFindCluster {
                             name: 'Get FIND Cluster Status',
                             value: 'getFindClusterStatus',
                         },
+                        {
+                            name: 'Get Find Cluster Master Nodes',
+                            value: 'getFindClusterMasterNodes',
+                        },
                     ],
                     default: 'getFindClusters',
                 },
@@ -70,7 +74,7 @@ class OptimizelyFindCluster {
                     required: true,
                     displayOptions: {
                         show: {
-                            operation: ['getFindClusterStatus'],
+                            operation: ['getFindClusterStatus', 'getFindClusterMasterNodes'],
                         },
                     },
                 },
@@ -145,7 +149,7 @@ class OptimizelyFindCluster {
         };
     }
     async execute() {
-        var _a, _b;
+        var _a, _b, _c;
         const items = this.getInputData();
         const returnData = [];
         const operation = this.getNodeParameter('operation', 0);
@@ -216,6 +220,31 @@ class OptimizelyFindCluster {
                     };
                     const response = await this.helpers.httpRequest(options);
                     const executionData = this.helpers.constructExecutionMetaData(this.helpers.returnJsonArray(response), { itemData: { item: (_b = items[itemIndex].index) !== null && _b !== void 0 ? _b : 0 } });
+                    returnData.push(...executionData);
+                }
+                else if (operation === 'getFindClusterMasterNodes') {
+                    const resourceGroupName = this.getNodeParameter('resourceGroupName', itemIndex);
+                    const apiVersion = '2021-07-01';
+                    const options = {
+                        method: 'GET',
+                        url: `https://management.azure.com/subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}/providers/Microsoft.Compute/virtualMachines`,
+                        headers: {
+                            Authorization: `Bearer ${accessToken}`,
+                        },
+                        qs: {
+                            'api-version': apiVersion,
+                        },
+                        json: true,
+                    };
+                    const response = await this.helpers.httpRequest(options);
+                    let vms = response.value || [];
+                    vms = vms.filter((vm) => vm.name && vm.name.toLowerCase().includes('-master'));
+                    vms = vms.map((vm) => ({
+                        ...vm,
+                        subscriptionId,
+                        clusterName: resourceGroupName,
+                    }));
+                    const executionData = this.helpers.constructExecutionMetaData(this.helpers.returnJsonArray(vms), { itemData: { item: (_c = items[itemIndex].index) !== null && _c !== void 0 ? _c : 0 } });
                     returnData.push(...executionData);
                 }
             }

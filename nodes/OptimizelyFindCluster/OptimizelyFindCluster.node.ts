@@ -53,6 +53,10 @@ export class OptimizelyFindCluster implements INodeType {
 						name: 'Get FIND Cluster Status',
 						value: 'getFindClusterStatus',
 					},
+					{
+						name: 'Get Find Cluster Master Nodes',
+						value: 'getFindClusterMasterNodes',
+					},
 				],
 				default: 'getFindClusters',
 			},
@@ -76,7 +80,7 @@ export class OptimizelyFindCluster implements INodeType {
 				required: true,
 				displayOptions: {
 					show: {
-						operation: ['getFindClusterStatus'],
+						operation: ['getFindClusterStatus', 'getFindClusterMasterNodes'],
 					},
 				},
 			},
@@ -250,6 +254,43 @@ export class OptimizelyFindCluster implements INodeType {
 
 					const executionData = this.helpers.constructExecutionMetaData(
 						this.helpers.returnJsonArray(response),
+						{ itemData: { item: items[itemIndex].index ?? 0 } }
+					);
+
+					returnData.push(...executionData);
+				} else if (operation === 'getFindClusterMasterNodes') {
+					const resourceGroupName = this.getNodeParameter('resourceGroupName', itemIndex) as string;
+
+					// 2. Get Virtual Machines
+					const apiVersion = '2021-07-01';
+					const options: IHttpRequestOptions = {
+						method: 'GET',
+						url: `https://management.azure.com/subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}/providers/Microsoft.Compute/virtualMachines`,
+						headers: {
+							Authorization: `Bearer ${accessToken}`,
+						},
+						qs: {
+							'api-version': apiVersion,
+						},
+						json: true,
+					};
+
+					const response = await this.helpers.httpRequest(options);
+					let vms = response.value || [];
+
+					// Filter VMs containing "-master"
+					vms = vms.filter((vm: { name: string }) =>
+						vm.name && vm.name.toLowerCase().includes('-master')
+					);
+
+					vms = vms.map((vm: Record<string, unknown>) => ({
+						...vm,
+						subscriptionId,
+						clusterName: resourceGroupName,
+					}));
+
+					const executionData = this.helpers.constructExecutionMetaData(
+						this.helpers.returnJsonArray(vms),
 						{ itemData: { item: items[itemIndex].index ?? 0 } }
 					);
 
