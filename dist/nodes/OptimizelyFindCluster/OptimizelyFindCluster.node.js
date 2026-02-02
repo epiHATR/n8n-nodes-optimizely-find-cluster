@@ -34,6 +34,22 @@ class OptimizelyFindCluster {
                     description: 'The ID of the Azure Subscription',
                 },
                 {
+                    displayName: 'Azure Management Endpoint',
+                    name: 'managementEndpoint',
+                    type: 'string',
+                    default: 'https://management.azure.com',
+                    required: true,
+                    description: 'The Azure Management API endpoint',
+                },
+                {
+                    displayName: 'Azure API Version',
+                    name: 'apiVersion',
+                    type: 'string',
+                    default: '2018-04-01',
+                    required: true,
+                    description: 'The API version to use for Azure requests',
+                },
+                {
                     displayName: 'Operation',
                     name: 'operation',
                     type: 'options',
@@ -131,6 +147,8 @@ class OptimizelyFindCluster {
                 async getVirtualMachines() {
                     const subscriptionId = this.getCurrentNodeParameter('subscriptionId');
                     const resourceGroupName = this.getCurrentNodeParameter('resourceGroupName');
+                    const managementEndpoint = this.getCurrentNodeParameter('managementEndpoint').replace(/\/$/, '');
+                    const apiVersion = this.getCurrentNodeParameter('apiVersion');
                     if (!subscriptionId || !resourceGroupName) {
                         return [];
                     }
@@ -152,10 +170,9 @@ class OptimizelyFindCluster {
                         };
                         const tokenResponse = await this.helpers.httpRequest(tokenOptions);
                         const accessToken = tokenResponse.access_token;
-                        const apiVersion = '2021-07-01';
                         const options = {
                             method: 'GET',
-                            url: `https://management.azure.com/subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}/providers/Microsoft.Compute/virtualMachines`,
+                            url: `${managementEndpoint}/subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}/providers/Microsoft.Compute/virtualMachines`,
                             headers: {
                                 Authorization: `Bearer ${accessToken}`,
                             },
@@ -186,6 +203,8 @@ class OptimizelyFindCluster {
         for (let itemIndex = 0; itemIndex < items.length; itemIndex++) {
             try {
                 const subscriptionId = this.getNodeParameter('subscriptionId', itemIndex);
+                const managementEndpoint = this.getNodeParameter('managementEndpoint', itemIndex).replace(/\/$/, '');
+                const apiVersion = this.getNodeParameter('apiVersion', itemIndex);
                 const credentials = await this.getCredentials('optimizelyFindClusterApi', itemIndex);
                 const tokenOptions = {
                     method: 'POST',
@@ -204,10 +223,9 @@ class OptimizelyFindCluster {
                 const tokenResponse = await this.helpers.httpRequest(tokenOptions);
                 const accessToken = tokenResponse.access_token;
                 if (operation === 'getFindClusters') {
-                    const apiVersion = '2021-04-01';
                     const options = {
                         method: 'GET',
-                        url: `https://management.azure.com/subscriptions/${subscriptionId}/resourcegroups`,
+                        url: `${managementEndpoint}/subscriptions/${subscriptionId}/resourcegroups`,
                         headers: {
                             Authorization: `Bearer ${accessToken}`,
                         },
@@ -233,10 +251,9 @@ class OptimizelyFindCluster {
                 else if (operation === 'getFindClusterStatus') {
                     const resourceGroupName = this.getNodeParameter('resourceGroupName', itemIndex);
                     const vmName = this.getNodeParameter('vmName', itemIndex);
-                    const apiVersion = '2021-07-01';
                     const options = {
                         method: 'POST',
-                        url: `https://management.azure.com/subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}/providers/Microsoft.Compute/virtualMachines/${vmName}/runCommand`,
+                        url: `${managementEndpoint}/subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}/providers/Microsoft.Compute/virtualMachines/${vmName}/runCommand`,
                         headers: {
                             Authorization: `Bearer ${accessToken}`,
                         },
@@ -257,10 +274,9 @@ class OptimizelyFindCluster {
                 }
                 else if (operation === 'getFindClusterMasterNodes') {
                     const resourceGroupName = this.getNodeParameter('resourceGroupName', itemIndex);
-                    const apiVersion = '2021-07-01';
                     const options = {
                         method: 'GET',
-                        url: `https://management.azure.com/subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}/providers/Microsoft.Compute/virtualMachines`,
+                        url: `${managementEndpoint}/subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}/providers/Microsoft.Compute/virtualMachines`,
                         headers: {
                             Authorization: `Bearer ${accessToken}`,
                         },
@@ -285,10 +301,9 @@ class OptimizelyFindCluster {
                     const vmName = this.getNodeParameter('vmName', itemIndex);
                     const commandId = this.getNodeParameter('commandId', itemIndex);
                     const script = this.getNodeParameter('script', itemIndex);
-                    const apiVersion = '2021-07-01';
                     const options = {
                         method: 'POST',
-                        url: `https://management.azure.com/subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}/providers/Microsoft.Compute/virtualMachines/${vmName}/runCommand`,
+                        url: `${managementEndpoint}/subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}/providers/Microsoft.Compute/virtualMachines/${vmName}/runCommand`,
                         headers: {
                             Authorization: `Bearer ${accessToken}`,
                         },

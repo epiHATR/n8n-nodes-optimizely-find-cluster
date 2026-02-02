@@ -40,6 +40,22 @@ export class OptimizelyFindCluster implements INodeType {
 				description: 'The ID of the Azure Subscription',
 			},
 			{
+				displayName: 'Azure Management Endpoint',
+				name: 'managementEndpoint',
+				type: 'string',
+				default: 'https://management.azure.com',
+				required: true,
+				description: 'The Azure Management API endpoint',
+			},
+			{
+				displayName: 'Azure API Version',
+				name: 'apiVersion',
+				type: 'string',
+				default: '2018-04-01',
+				required: true,
+				description: 'The API version to use for Azure requests',
+			},
+			{
 				displayName: 'Operation',
 				name: 'operation',
 				type: 'options',
@@ -138,6 +154,8 @@ export class OptimizelyFindCluster implements INodeType {
 			async getVirtualMachines(this: ILoadOptionsFunctions): Promise<INodePropertyOptions[]> {
 				const subscriptionId = this.getCurrentNodeParameter('subscriptionId') as string;
 				const resourceGroupName = this.getCurrentNodeParameter('resourceGroupName') as string;
+				const managementEndpoint = (this.getCurrentNodeParameter('managementEndpoint') as string).replace(/\/$/, '');
+				const apiVersion = this.getCurrentNodeParameter('apiVersion') as string;
 
 				if (!subscriptionId || !resourceGroupName) {
 					return [];
@@ -166,10 +184,9 @@ export class OptimizelyFindCluster implements INodeType {
 					const accessToken = tokenResponse.access_token;
 
 					// 2. Get Virtual Machines
-					const apiVersion = '2021-07-01';
 					const options: IHttpRequestOptions = {
 						method: 'GET',
-						url: `https://management.azure.com/subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}/providers/Microsoft.Compute/virtualMachines`,
+						url: `${managementEndpoint}/subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}/providers/Microsoft.Compute/virtualMachines`,
 						headers: {
 							Authorization: `Bearer ${accessToken}`,
 						},
@@ -201,6 +218,8 @@ export class OptimizelyFindCluster implements INodeType {
 		for (let itemIndex = 0; itemIndex < items.length; itemIndex++) {
 			try {
 				const subscriptionId = this.getNodeParameter('subscriptionId', itemIndex) as string;
+				const managementEndpoint = (this.getNodeParameter('managementEndpoint', itemIndex) as string).replace(/\/$/, '');
+				const apiVersion = this.getNodeParameter('apiVersion', itemIndex) as string;
 				const credentials = await this.getCredentials('optimizelyFindClusterApi', itemIndex);
 
 				// 1. Get Access Token
@@ -224,10 +243,9 @@ export class OptimizelyFindCluster implements INodeType {
 
 				if (operation === 'getFindClusters') {
 					// 2. Get Resource Groups
-					const apiVersion = '2021-04-01';
 					const options: IHttpRequestOptions = {
 						method: 'GET',
-						url: `https://management.azure.com/subscriptions/${subscriptionId}/resourcegroups`,
+						url: `${managementEndpoint}/subscriptions/${subscriptionId}/resourcegroups`,
 						headers: {
 							Authorization: `Bearer ${accessToken}`,
 						},
@@ -264,10 +282,9 @@ export class OptimizelyFindCluster implements INodeType {
 					const vmName = this.getNodeParameter('vmName', itemIndex) as string;
 
 					// 2. Execute Run Command (Targeting the Virtual Machine)
-					const apiVersion = '2021-07-01';
 					const options: IHttpRequestOptions = {
 						method: 'POST',
-						url: `https://management.azure.com/subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}/providers/Microsoft.Compute/virtualMachines/${vmName}/runCommand`,
+						url: `${managementEndpoint}/subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}/providers/Microsoft.Compute/virtualMachines/${vmName}/runCommand`,
 						headers: {
 							Authorization: `Bearer ${accessToken}`,
 						},
@@ -295,10 +312,9 @@ export class OptimizelyFindCluster implements INodeType {
 					const resourceGroupName = this.getNodeParameter('resourceGroupName', itemIndex) as string;
 
 					// 2. Get Virtual Machines
-					const apiVersion = '2021-07-01';
 					const options: IHttpRequestOptions = {
 						method: 'GET',
-						url: `https://management.azure.com/subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}/providers/Microsoft.Compute/virtualMachines`,
+						url: `${managementEndpoint}/subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}/providers/Microsoft.Compute/virtualMachines`,
 						headers: {
 							Authorization: `Bearer ${accessToken}`,
 						},
@@ -335,10 +351,9 @@ export class OptimizelyFindCluster implements INodeType {
 					const script = this.getNodeParameter('script', itemIndex) as string;
 
 					// 2. Execute Run Command
-					const apiVersion = '2021-07-01';
 					const options: IHttpRequestOptions = {
 						method: 'POST',
-						url: `https://management.azure.com/subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}/providers/Microsoft.Compute/virtualMachines/${vmName}/runCommand`,
+						url: `${managementEndpoint}/subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}/providers/Microsoft.Compute/virtualMachines/${vmName}/runCommand`,
 						headers: {
 							Authorization: `Bearer ${accessToken}`,
 						},
