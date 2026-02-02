@@ -172,9 +172,11 @@ class OptimizelyFindCluster {
                         const accessToken = tokenResponse.access_token;
                         const options = {
                             method: 'GET',
-                            url: `${managementEndpoint}/subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}/providers/Microsoft.Compute/virtualMachines`,
+                            url: `${managementEndpoint}/subscriptions/${encodeURIComponent(subscriptionId)}/resourceGroups/${encodeURIComponent(resourceGroupName)}/providers/Microsoft.Compute/virtualMachines`,
                             headers: {
                                 Authorization: `Bearer ${accessToken}`,
+                                'Content-Type': 'application/json',
+                                Accept: 'application/json',
                             },
                             qs: {
                                 'api-version': apiVersion,
@@ -225,9 +227,11 @@ class OptimizelyFindCluster {
                 if (operation === 'getFindClusters') {
                     const options = {
                         method: 'GET',
-                        url: `${managementEndpoint}/subscriptions/${subscriptionId}/resourcegroups`,
+                        url: `${managementEndpoint}/subscriptions/${encodeURIComponent(subscriptionId)}/resourcegroups`,
                         headers: {
                             Authorization: `Bearer ${accessToken}`,
+                            'Content-Type': 'application/json',
+                            Accept: 'application/json',
                         },
                         qs: {
                             'api-version': apiVersion,
@@ -253,9 +257,11 @@ class OptimizelyFindCluster {
                     const vmName = this.getNodeParameter('vmName', itemIndex);
                     const options = {
                         method: 'POST',
-                        url: `${managementEndpoint}/subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}/providers/Microsoft.Compute/virtualMachines/${vmName}/runCommand`,
+                        url: `${managementEndpoint}/subscriptions/${encodeURIComponent(subscriptionId)}/resourceGroups/${encodeURIComponent(resourceGroupName)}/providers/Microsoft.Compute/virtualMachines/${encodeURIComponent(vmName)}/runCommand`,
                         headers: {
                             Authorization: `Bearer ${accessToken}`,
+                            'Content-Type': 'application/json',
+                            Accept: 'application/json',
                         },
                         qs: {
                             'api-version': apiVersion,
@@ -276,9 +282,11 @@ class OptimizelyFindCluster {
                     const resourceGroupName = this.getNodeParameter('resourceGroupName', itemIndex);
                     const options = {
                         method: 'GET',
-                        url: `${managementEndpoint}/subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}/providers/Microsoft.Compute/virtualMachines`,
+                        url: `${managementEndpoint}/subscriptions/${encodeURIComponent(subscriptionId)}/resourceGroups/${encodeURIComponent(resourceGroupName)}/providers/Microsoft.Compute/virtualMachines`,
                         headers: {
                             Authorization: `Bearer ${accessToken}`,
+                            'Content-Type': 'application/json',
+                            Accept: 'application/json',
                         },
                         qs: {
                             'api-version': apiVersion,
@@ -303,9 +311,11 @@ class OptimizelyFindCluster {
                     const script = this.getNodeParameter('script', itemIndex);
                     const options = {
                         method: 'POST',
-                        url: `${managementEndpoint}/subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}/providers/Microsoft.Compute/virtualMachines/${vmName}/runCommand`,
+                        url: `${managementEndpoint}/subscriptions/${encodeURIComponent(subscriptionId)}/resourceGroups/${encodeURIComponent(resourceGroupName)}/providers/Microsoft.Compute/virtualMachines/${encodeURIComponent(vmName)}/runCommand`,
                         headers: {
                             Authorization: `Bearer ${accessToken}`,
+                            'Content-Type': 'application/json',
+                            Accept: 'application/json',
                         },
                         qs: {
                             'api-version': apiVersion,

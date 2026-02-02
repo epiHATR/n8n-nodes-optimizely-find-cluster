@@ -186,9 +186,11 @@ export class OptimizelyFindCluster implements INodeType {
 					// 2. Get Virtual Machines
 					const options: IHttpRequestOptions = {
 						method: 'GET',
-						url: `${managementEndpoint}/subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}/providers/Microsoft.Compute/virtualMachines`,
+						url: `${managementEndpoint}/subscriptions/${encodeURIComponent(subscriptionId)}/resourceGroups/${encodeURIComponent(resourceGroupName)}/providers/Microsoft.Compute/virtualMachines`,
 						headers: {
 							Authorization: `Bearer ${accessToken}`,
+							'Content-Type': 'application/json',
+							Accept: 'application/json',
 						},
 						qs: {
 							'api-version': apiVersion,
@@ -245,9 +247,11 @@ export class OptimizelyFindCluster implements INodeType {
 					// 2. Get Resource Groups
 					const options: IHttpRequestOptions = {
 						method: 'GET',
-						url: `${managementEndpoint}/subscriptions/${subscriptionId}/resourcegroups`,
+						url: `${managementEndpoint}/subscriptions/${encodeURIComponent(subscriptionId)}/resourcegroups`,
 						headers: {
 							Authorization: `Bearer ${accessToken}`,
+							'Content-Type': 'application/json',
+							Accept: 'application/json',
 						},
 						qs: {
 							'api-version': apiVersion,
@@ -284,9 +288,11 @@ export class OptimizelyFindCluster implements INodeType {
 					// 2. Execute Run Command (Targeting the Virtual Machine)
 					const options: IHttpRequestOptions = {
 						method: 'POST',
-						url: `${managementEndpoint}/subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}/providers/Microsoft.Compute/virtualMachines/${vmName}/runCommand`,
+						url: `${managementEndpoint}/subscriptions/${encodeURIComponent(subscriptionId)}/resourceGroups/${encodeURIComponent(resourceGroupName)}/providers/Microsoft.Compute/virtualMachines/${encodeURIComponent(vmName)}/runCommand`,
 						headers: {
 							Authorization: `Bearer ${accessToken}`,
+							'Content-Type': 'application/json',
+							Accept: 'application/json',
 						},
 						qs: {
 							'api-version': apiVersion,
@@ -314,9 +320,11 @@ export class OptimizelyFindCluster implements INodeType {
 					// 2. Get Virtual Machines
 					const options: IHttpRequestOptions = {
 						method: 'GET',
-						url: `${managementEndpoint}/subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}/providers/Microsoft.Compute/virtualMachines`,
+						url: `${managementEndpoint}/subscriptions/${encodeURIComponent(subscriptionId)}/resourceGroups/${encodeURIComponent(resourceGroupName)}/providers/Microsoft.Compute/virtualMachines`,
 						headers: {
 							Authorization: `Bearer ${accessToken}`,
+							'Content-Type': 'application/json',
+							Accept: 'application/json',
 						},
 						qs: {
 							'api-version': apiVersion,
@@ -353,9 +361,11 @@ export class OptimizelyFindCluster implements INodeType {
 					// 2. Execute Run Command
 					const options: IHttpRequestOptions = {
 						method: 'POST',
-						url: `${managementEndpoint}/subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}/providers/Microsoft.Compute/virtualMachines/${vmName}/runCommand`,
+						url: `${managementEndpoint}/subscriptions/${encodeURIComponent(subscriptionId)}/resourceGroups/${encodeURIComponent(resourceGroupName)}/providers/Microsoft.Compute/virtualMachines/${encodeURIComponent(vmName)}/runCommand`,
 						headers: {
 							Authorization: `Bearer ${accessToken}`,
+							'Content-Type': 'application/json',
+							Accept: 'application/json',
 						},
 						qs: {
 							'api-version': apiVersion,
