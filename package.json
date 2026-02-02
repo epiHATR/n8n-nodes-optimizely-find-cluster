@@ -1,6 +1,6 @@
 {
     "name": "n8n-nodes-optimizely-find-cluster",
-    "version": "0.1.19",
+    "version": "0.1.20",
     "description": "n8n (Nodemation) node for Optimizely Find Cluster",
     "license": "MIT",
     "homepage": "",
