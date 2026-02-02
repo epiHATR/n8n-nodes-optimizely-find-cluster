@@ -75,11 +75,11 @@ class OptimizelyFindCluster {
                     },
                 },
                 {
-                    displayName: 'Master Node VMSS Name or ID',
+                    displayName: 'Master Node Name or ID',
                     name: 'vmName',
                     type: 'options',
                     typeOptions: {
-                        loadOptionsMethod: 'getVmScaleSets',
+                        loadOptionsMethod: 'getVirtualMachines',
                     },
                     default: '',
                     required: true,
@@ -94,7 +94,7 @@ class OptimizelyFindCluster {
         };
         this.methods = {
             loadOptions: {
-                async getVmScaleSets() {
+                async getVirtualMachines() {
                     const subscriptionId = this.getCurrentNodeParameter('subscriptionId');
                     const resourceGroupName = this.getCurrentNodeParameter('resourceGroupName');
                     if (!subscriptionId || !resourceGroupName) {
@@ -121,7 +121,7 @@ class OptimizelyFindCluster {
                         const apiVersion = '2021-07-01';
                         const options = {
                             method: 'GET',
-                            url: `https://management.azure.com/subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}/providers/Microsoft.Compute/virtualMachineScaleSets`,
+                            url: `https://management.azure.com/subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}/providers/Microsoft.Compute/virtualMachines`,
                             headers: {
                                 Authorization: `Bearer ${accessToken}`,
                             },
@@ -131,8 +131,8 @@ class OptimizelyFindCluster {
                             json: true,
                         };
                         const response = await this.helpers.httpRequest(options);
-                        const vmss = response.value || [];
-                        return vmss.map((item) => ({
+                        const vms = response.value || [];
+                        return vms.map((item) => ({
                             name: item.name,
                             value: item.name,
                         }));
@@ -198,11 +198,11 @@ class OptimizelyFindCluster {
                 }
                 else if (operation === 'getFindClusterStatus') {
                     const resourceGroupName = this.getNodeParameter('resourceGroupName', itemIndex);
-                    const vmssName = this.getNodeParameter('vmName', itemIndex);
+                    const vmName = this.getNodeParameter('vmName', itemIndex);
                     const apiVersion = '2021-07-01';
                     const options = {
                         method: 'POST',
-                        url: `https://management.azure.com/subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}/providers/Microsoft.Compute/virtualMachineScaleSets/${vmssName}/virtualMachines/0/runCommand?api-version=${apiVersion}`,
+                        url: `https://management.azure.com/subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}/providers/Microsoft.Compute/virtualMachines/${vmName}/runCommand?api-version=${apiVersion}`,
                         headers: {
                             Authorization: `Bearer ${accessToken}`,
                         },

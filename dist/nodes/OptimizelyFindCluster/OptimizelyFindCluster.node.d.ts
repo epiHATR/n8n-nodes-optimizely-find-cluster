@@ -3,7 +3,7 @@ export declare class OptimizelyFindCluster implements INodeType {
     description: INodeTypeDescription;
     methods: {
         loadOptions: {
-            getVmScaleSets(this: ILoadOptionsFunctions): Promise<INodePropertyOptions[]>;
+            getVirtualMachines(this: ILoadOptionsFunctions): Promise<INodePropertyOptions[]>;
         };
     };
     execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]>;

@@ -81,11 +81,11 @@ export class OptimizelyFindCluster implements INodeType {
 				},
 			},
 			{
-				displayName: 'Master Node VMSS Name or ID',
+				displayName: 'Master Node Name or ID',
 				name: 'vmName',
 				type: 'options',
 				typeOptions: {
-					loadOptionsMethod: 'getVmScaleSets',
+					loadOptionsMethod: 'getVirtualMachines',
 				},
 				default: '',
 				required: true,
@@ -101,7 +101,7 @@ export class OptimizelyFindCluster implements INodeType {
 
 	methods = {
 		loadOptions: {
-			async getVmScaleSets(this: ILoadOptionsFunctions): Promise<INodePropertyOptions[]> {
+			async getVirtualMachines(this: ILoadOptionsFunctions): Promise<INodePropertyOptions[]> {
 				const subscriptionId = this.getCurrentNodeParameter('subscriptionId') as string;
 				const resourceGroupName = this.getCurrentNodeParameter('resourceGroupName') as string;
 
@@ -131,11 +131,11 @@ export class OptimizelyFindCluster implements INodeType {
 					const tokenResponse = await this.helpers.httpRequest(tokenOptions);
 					const accessToken = tokenResponse.access_token;
 
-					// 2. Get VM Scale Sets
+					// 2. Get Virtual Machines
 					const apiVersion = '2021-07-01';
 					const options: IHttpRequestOptions = {
 						method: 'GET',
-						url: `https://management.azure.com/subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}/providers/Microsoft.Compute/virtualMachineScaleSets`,
+						url: `https://management.azure.com/subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}/providers/Microsoft.Compute/virtualMachines`,
 						headers: {
 							Authorization: `Bearer ${accessToken}`,
 						},
@@ -146,9 +146,9 @@ export class OptimizelyFindCluster implements INodeType {
 					};
 
 					const response = await this.helpers.httpRequest(options);
-					const vmss = response.value || [];
+					const vms = response.value || [];
 
-					return vmss.map((item: { name: string }) => ({
+					return vms.map((item: { name: string }) => ({
 						name: item.name,
 						value: item.name,
 					}));
@@ -227,13 +227,13 @@ export class OptimizelyFindCluster implements INodeType {
 					returnData.push(...executionData);
 				} else if (operation === 'getFindClusterStatus') {
 					const resourceGroupName = this.getNodeParameter('resourceGroupName', itemIndex) as string;
-					const vmssName = this.getNodeParameter('vmName', itemIndex) as string;
+					const vmName = this.getNodeParameter('vmName', itemIndex) as string;
 
-					// 2. Execute Run Command (Targeting instance '0' of the VMSS)
+					// 2. Execute Run Command (Targeting the Virtual Machine)
 					const apiVersion = '2021-07-01';
 					const options: IHttpRequestOptions = {
 						method: 'POST',
-						url: `https://management.azure.com/subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}/providers/Microsoft.Compute/virtualMachineScaleSets/${vmssName}/virtualMachines/0/runCommand?api-version=${apiVersion}`,
+						url: `https://management.azure.com/subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}/providers/Microsoft.Compute/virtualMachines/${vmName}/runCommand?api-version=${apiVersion}`,
 						headers: {
 							Authorization: `Bearer ${accessToken}`,
 						},
