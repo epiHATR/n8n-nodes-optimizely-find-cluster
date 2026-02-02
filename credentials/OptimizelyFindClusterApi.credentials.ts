@@ -38,12 +38,6 @@ export class OptimizelyFindClusterApi implements ICredentialType {
             },
             default: '',
         },
-        {
-            displayName: 'Subscription ID',
-            name: 'subscriptionId',
-            type: 'string',
-            default: '',
-        },
     ];
     test: ICredentialTestRequest = {
         request: {

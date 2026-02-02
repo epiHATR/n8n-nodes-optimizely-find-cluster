@@ -8,7 +8,7 @@ import { NodeConnectionTypes, NodeOperationError } from 'n8n-workflow';
 
 export class OptimizelyFindCluster implements INodeType {
 	description: INodeTypeDescription = {
-		displayName: 'Optimizely Find Cluster',
+		displayName: 'Optimizely Nodes',
 		name: 'optimizelyFindCluster',
 		icon: { light: 'file:example.svg', dark: 'file:example.dark.svg' },
 		group: ['input'],
@@ -16,7 +16,7 @@ export class OptimizelyFindCluster implements INodeType {
 		subtitle: '={{ $parameter["operation"] }}',
 		description: 'Interact with Optimizely Find Cluster',
 		defaults: {
-			name: 'Optimizely Find Cluster',
+			name: 'Optimizely Nodes',
 		},
 		inputs: [NodeConnectionTypes.Main],
 		outputs: [NodeConnectionTypes.Main],
@@ -29,17 +29,25 @@ export class OptimizelyFindCluster implements INodeType {
 		usableAsTool: true,
 		properties: [
 			{
+				displayName: 'Subscription ID',
+				name: 'subscriptionId',
+				type: 'string',
+				default: '',
+				required: true,
+				description: 'The ID of the Azure Subscription',
+			},
+			{
 				displayName: 'Operation',
 				name: 'operation',
 				type: 'options',
 				noDataExpression: true,
 				options: [
 					{
-						name: 'Get Clusters',
-						value: 'getClusters',
+						name: 'Get Find Clusters',
+						value: 'getFindClusters',
 					},
 				],
-				default: 'getClusters',
+				default: 'getFindClusters',
 			},
 		],
 	};

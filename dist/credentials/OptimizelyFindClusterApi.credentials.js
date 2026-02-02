@@ -35,12 +35,6 @@ class OptimizelyFindClusterApi {
                 },
                 default: '',
             },
-            {
-                displayName: 'Subscription ID',
-                name: 'subscriptionId',
-                type: 'string',
-                default: '',
-            },
         ];
         this.test = {
             request: {
