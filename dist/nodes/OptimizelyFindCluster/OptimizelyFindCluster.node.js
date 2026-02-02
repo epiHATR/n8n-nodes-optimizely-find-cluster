@@ -236,9 +236,12 @@ class OptimizelyFindCluster {
                     const apiVersion = '2021-07-01';
                     const options = {
                         method: 'POST',
-                        url: `https://management.azure.com/subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}/providers/Microsoft.Compute/virtualMachines/${vmName}/runCommand?api-version=${apiVersion}`,
+                        url: `https://management.azure.com/subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}/providers/Microsoft.Compute/virtualMachines/${vmName}/runCommand`,
                         headers: {
                             Authorization: `Bearer ${accessToken}`,
+                        },
+                        qs: {
+                            'api-version': apiVersion,
                         },
                         body: {
                             commandId: 'RunShellScript',
@@ -285,9 +288,12 @@ class OptimizelyFindCluster {
                     const apiVersion = '2021-07-01';
                     const options = {
                         method: 'POST',
-                        url: `https://management.azure.com/subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}/providers/Microsoft.Compute/virtualMachines/${vmName}/runCommand?api-version=${apiVersion}`,
+                        url: `https://management.azure.com/subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}/providers/Microsoft.Compute/virtualMachines/${vmName}/runCommand`,
                         headers: {
                             Authorization: `Bearer ${accessToken}`,
+                        },
+                        qs: {
+                            'api-version': apiVersion,
                         },
                         body: {
                             commandId,
