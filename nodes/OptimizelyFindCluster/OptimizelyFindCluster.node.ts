@@ -57,6 +57,10 @@ export class OptimizelyFindCluster implements INodeType {
 						name: 'Get Find Cluster Master Nodes',
 						value: 'getFindClusterMasterNodes',
 					},
+					{
+						name: 'Run Azure Virtual Machine Command',
+						value: 'runAzureVmCommand',
+					},
 				],
 				default: 'getFindClusters',
 			},
@@ -80,7 +84,7 @@ export class OptimizelyFindCluster implements INodeType {
 				required: true,
 				displayOptions: {
 					show: {
-						operation: ['getFindClusterStatus', 'getFindClusterMasterNodes'],
+						operation: ['getFindClusterStatus', 'getFindClusterMasterNodes', 'runAzureVmCommand'],
 					},
 				},
 			},
@@ -95,10 +99,36 @@ export class OptimizelyFindCluster implements INodeType {
 				required: true,
 				displayOptions: {
 					show: {
-						operation: ['getFindClusterStatus'],
+						operation: ['getFindClusterStatus', 'runAzureVmCommand'],
 					},
 				},
 				description: 'Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>',
+			},
+			{
+				displayName: 'Command ID',
+				name: 'commandId',
+				type: 'string',
+				default: 'RunShellScript',
+				required: true,
+				displayOptions: {
+					show: {
+						operation: ['runAzureVmCommand'],
+					},
+				},
+				description: 'The Azure Run Command ID (e.g., RunShellScript, RunPowerShellScript)',
+			},
+			{
+				displayName: 'Script',
+				name: 'script',
+				type: 'string',
+				default: '',
+				required: true,
+				displayOptions: {
+					show: {
+						operation: ['runAzureVmCommand'],
+					},
+				},
+				description: 'The script to run on the virtual machine. Multiple lines can be used.',
 			},
 		],
 	};
@@ -291,6 +321,35 @@ export class OptimizelyFindCluster implements INodeType {
 
 					const executionData = this.helpers.constructExecutionMetaData(
 						this.helpers.returnJsonArray(vms),
+						{ itemData: { item: items[itemIndex].index ?? 0 } }
+					);
+
+					returnData.push(...executionData);
+				} else if (operation === 'runAzureVmCommand') {
+					const resourceGroupName = this.getNodeParameter('resourceGroupName', itemIndex) as string;
+					const vmName = this.getNodeParameter('vmName', itemIndex) as string;
+					const commandId = this.getNodeParameter('commandId', itemIndex) as string;
+					const script = this.getNodeParameter('script', itemIndex) as string;
+
+					// 2. Execute Run Command
+					const apiVersion = '2021-07-01';
+					const options: IHttpRequestOptions = {
+						method: 'POST',
+						url: `https://management.azure.com/subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}/providers/Microsoft.Compute/virtualMachines/${vmName}/runCommand?api-version=${apiVersion}`,
+						headers: {
+							Authorization: `Bearer ${accessToken}`,
+						},
+						body: {
+							commandId,
+							script: script.split('\n'),
+						},
+						json: true,
+					};
+
+					const response = await this.helpers.httpRequest(options);
+
+					const executionData = this.helpers.constructExecutionMetaData(
+						this.helpers.returnJsonArray(response),
 						{ itemData: { item: items[itemIndex].index ?? 0 } }
 					);
 

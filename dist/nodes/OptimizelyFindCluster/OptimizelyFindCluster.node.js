@@ -51,6 +51,10 @@ class OptimizelyFindCluster {
                             name: 'Get Find Cluster Master Nodes',
                             value: 'getFindClusterMasterNodes',
                         },
+                        {
+                            name: 'Run Azure Virtual Machine Command',
+                            value: 'runAzureVmCommand',
+                        },
                     ],
                     default: 'getFindClusters',
                 },
@@ -74,7 +78,7 @@ class OptimizelyFindCluster {
                     required: true,
                     displayOptions: {
                         show: {
-                            operation: ['getFindClusterStatus', 'getFindClusterMasterNodes'],
+                            operation: ['getFindClusterStatus', 'getFindClusterMasterNodes', 'runAzureVmCommand'],
                         },
                     },
                 },
@@ -89,10 +93,36 @@ class OptimizelyFindCluster {
                     required: true,
                     displayOptions: {
                         show: {
-                            operation: ['getFindClusterStatus'],
+                            operation: ['getFindClusterStatus', 'runAzureVmCommand'],
                         },
                     },
                     description: 'Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>',
+                },
+                {
+                    displayName: 'Command ID',
+                    name: 'commandId',
+                    type: 'string',
+                    default: 'RunShellScript',
+                    required: true,
+                    displayOptions: {
+                        show: {
+                            operation: ['runAzureVmCommand'],
+                        },
+                    },
+                    description: 'The Azure Run Command ID (e.g., RunShellScript, RunPowerShellScript)',
+                },
+                {
+                    displayName: 'Script',
+                    name: 'script',
+                    type: 'string',
+                    default: '',
+                    required: true,
+                    displayOptions: {
+                        show: {
+                            operation: ['runAzureVmCommand'],
+                        },
+                    },
+                    description: 'The script to run on the virtual machine. Multiple lines can be used.',
                 },
             ],
         };
@@ -149,7 +179,7 @@ class OptimizelyFindCluster {
         };
     }
     async execute() {
-        var _a, _b, _c;
+        var _a, _b, _c, _d;
         const items = this.getInputData();
         const returnData = [];
         const operation = this.getNodeParameter('operation', 0);
@@ -245,6 +275,28 @@ class OptimizelyFindCluster {
                         clusterName: resourceGroupName,
                     }));
                     const executionData = this.helpers.constructExecutionMetaData(this.helpers.returnJsonArray(vms), { itemData: { item: (_c = items[itemIndex].index) !== null && _c !== void 0 ? _c : 0 } });
+                    returnData.push(...executionData);
+                }
+                else if (operation === 'runAzureVmCommand') {
+                    const resourceGroupName = this.getNodeParameter('resourceGroupName', itemIndex);
+                    const vmName = this.getNodeParameter('vmName', itemIndex);
+                    const commandId = this.getNodeParameter('commandId', itemIndex);
+                    const script = this.getNodeParameter('script', itemIndex);
+                    const apiVersion = '2021-07-01';
+                    const options = {
+                        method: 'POST',
+                        url: `https://management.azure.com/subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}/providers/Microsoft.Compute/virtualMachines/${vmName}/runCommand?api-version=${apiVersion}`,
+                        headers: {
+                            Authorization: `Bearer ${accessToken}`,
+                        },
+                        body: {
+                            commandId,
+                            script: script.split('\n'),
+                        },
+                        json: true,
+                    };
+                    const response = await this.helpers.httpRequest(options);
+                    const executionData = this.helpers.constructExecutionMetaData(this.helpers.returnJsonArray(response), { itemData: { item: (_d = items[itemIndex].index) !== null && _d !== void 0 ? _d : 0 } });
                     returnData.push(...executionData);
                 }
             }
