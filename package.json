@@ -34,8 +34,7 @@
             "dist/credentials/OptimizelyFindClusterApi.credentials.js"
         ],
         "nodes": [
-            "dist/nodes/OptimizelyFindCluster/OptimizelyFindCluster.node.js",
-            "dist/nodes/OptimizelyClusterStatus/OptimizelyClusterStatus.node.js"
+            "dist/nodes/OptimizelyFindCluster/OptimizelyFindCluster.node.js"
         ]
     },
     "devDependencies": {

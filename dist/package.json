@@ -1,6 +1,6 @@
 {
     "name": "n8n-nodes-optimizely-find-cluster",
-    "version": "0.1.9",
+    "version": "0.1.10",
     "description": "n8n (Nodemation) node for Optimizely Find Cluster",
     "license": "MIT",
     "homepage": "",
@@ -34,8 +34,7 @@
             "dist/credentials/OptimizelyFindClusterApi.credentials.js"
         ],
         "nodes": [
-            "dist/nodes/OptimizelyFindCluster/OptimizelyFindCluster.node.js",
-            "dist/nodes/OptimizelyClusterStatus/OptimizelyClusterStatus.node.js"
+            "dist/nodes/OptimizelyFindCluster/OptimizelyFindCluster.node.js"
         ]
     },
     "devDependencies": {
