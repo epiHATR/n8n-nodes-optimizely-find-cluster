@@ -75,9 +75,12 @@ class OptimizelyFindCluster {
                     },
                 },
                 {
-                    displayName: 'Master Node VM Name',
+                    displayName: 'Master Node VMSS Name or ID',
                     name: 'vmName',
-                    type: 'string',
+                    type: 'options',
+                    typeOptions: {
+                        loadOptionsMethod: 'getVmScaleSets',
+                    },
                     default: '',
                     required: true,
                     displayOptions: {
@@ -85,8 +88,60 @@ class OptimizelyFindCluster {
                             operation: ['getFindClusterStatus'],
                         },
                     },
+                    description: 'Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>',
                 },
             ],
+        };
+        this.methods = {
+            loadOptions: {
+                async getVmScaleSets() {
+                    const subscriptionId = this.getCurrentNodeParameter('subscriptionId');
+                    const resourceGroupName = this.getCurrentNodeParameter('resourceGroupName');
+                    if (!subscriptionId || !resourceGroupName) {
+                        return [];
+                    }
+                    try {
+                        const credentials = await this.getCredentials('optimizelyFindClusterApi');
+                        const tokenOptions = {
+                            method: 'POST',
+                            url: `${credentials.authUrl}${credentials.tenantId}/oauth2/token`,
+                            headers: {
+                                'Content-Type': 'application/x-www-form-urlencoded',
+                            },
+                            body: {
+                                grant_type: 'client_credentials',
+                                client_id: credentials.applicationId,
+                                client_secret: credentials.applicationSecret,
+                                resource: 'https://management.core.windows.net/',
+                            },
+                            json: true,
+                        };
+                        const tokenResponse = await this.helpers.httpRequest(tokenOptions);
+                        const accessToken = tokenResponse.access_token;
+                        const apiVersion = '2021-07-01';
+                        const options = {
+                            method: 'GET',
+                            url: `https://management.azure.com/subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}/providers/Microsoft.Compute/virtualMachineScaleSets`,
+                            headers: {
+                                Authorization: `Bearer ${accessToken}`,
+                            },
+                            qs: {
+                                'api-version': apiVersion,
+                            },
+                            json: true,
+                        };
+                        const response = await this.helpers.httpRequest(options);
+                        const vmss = response.value || [];
+                        return vmss.map((item) => ({
+                            name: item.name,
+                            value: item.name,
+                        }));
+                    }
+                    catch (error) {
+                        throw new n8n_workflow_1.NodeOperationError(this.getNode(), error);
+                    }
+                },
+            },
         };
     }
     async execute() {
@@ -143,11 +198,11 @@ class OptimizelyFindCluster {
                 }
                 else if (operation === 'getFindClusterStatus') {
                     const resourceGroupName = this.getNodeParameter('resourceGroupName', itemIndex);
-                    const vmName = this.getNodeParameter('vmName', itemIndex);
+                    const vmssName = this.getNodeParameter('vmName', itemIndex);
                     const apiVersion = '2021-07-01';
                     const options = {
                         method: 'POST',
-                        url: `https://management.azure.com/subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}/providers/Microsoft.Compute/virtualMachines/${vmName}/runCommand?api-version=${apiVersion}`,
+                        url: `https://management.azure.com/subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}/providers/Microsoft.Compute/virtualMachineScaleSets/${vmssName}/virtualMachines/0/runCommand?api-version=${apiVersion}`,
                         headers: {
                             Authorization: `Bearer ${accessToken}`,
                         },

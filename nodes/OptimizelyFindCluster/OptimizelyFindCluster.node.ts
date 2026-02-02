@@ -4,6 +4,8 @@ import type {
 	INodeType,
 	INodeTypeDescription,
 	IHttpRequestOptions,
+	ILoadOptionsFunctions,
+	INodePropertyOptions,
 } from 'n8n-workflow';
 import { NodeConnectionTypes, NodeOperationError } from 'n8n-workflow';
 
@@ -79,9 +81,12 @@ export class OptimizelyFindCluster implements INodeType {
 				},
 			},
 			{
-				displayName: 'Master Node VM Name',
+				displayName: 'Master Node VMSS Name or ID',
 				name: 'vmName',
-				type: 'string',
+				type: 'options',
+				typeOptions: {
+					loadOptionsMethod: 'getVmScaleSets',
+				},
 				default: '',
 				required: true,
 				displayOptions: {
@@ -89,14 +94,71 @@ export class OptimizelyFindCluster implements INodeType {
 						operation: ['getFindClusterStatus'],
 					},
 				},
+				description: 'Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>',
 			},
 		],
 	};
 
-	// The function below is responsible for actually doing whatever this node
-	// is supposed to do. In this case, we're just appending the `myString` property
-	// with whatever the user has entered.
-	// You can make async calls and use `await`.
+	methods = {
+		loadOptions: {
+			async getVmScaleSets(this: ILoadOptionsFunctions): Promise<INodePropertyOptions[]> {
+				const subscriptionId = this.getCurrentNodeParameter('subscriptionId') as string;
+				const resourceGroupName = this.getCurrentNodeParameter('resourceGroupName') as string;
+
+				if (!subscriptionId || !resourceGroupName) {
+					return [];
+				}
+
+				try {
+					const credentials = await this.getCredentials('optimizelyFindClusterApi');
+
+					// 1. Get Access Token
+					const tokenOptions: IHttpRequestOptions = {
+						method: 'POST',
+						url: `${credentials.authUrl}${credentials.tenantId}/oauth2/token`,
+						headers: {
+							'Content-Type': 'application/x-www-form-urlencoded',
+						},
+						body: {
+							grant_type: 'client_credentials',
+							client_id: credentials.applicationId,
+							client_secret: credentials.applicationSecret,
+							resource: 'https://management.core.windows.net/',
+						},
+						json: true,
+					};
+
+					const tokenResponse = await this.helpers.httpRequest(tokenOptions);
+					const accessToken = tokenResponse.access_token;
+
+					// 2. Get VM Scale Sets
+					const apiVersion = '2021-07-01';
+					const options: IHttpRequestOptions = {
+						method: 'GET',
+						url: `https://management.azure.com/subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}/providers/Microsoft.Compute/virtualMachineScaleSets`,
+						headers: {
+							Authorization: `Bearer ${accessToken}`,
+						},
+						qs: {
+							'api-version': apiVersion,
+						},
+						json: true,
+					};
+
+					const response = await this.helpers.httpRequest(options);
+					const vmss = response.value || [];
+
+					return vmss.map((item: { name: string }) => ({
+						name: item.name,
+						value: item.name,
+					}));
+				} catch (error) {
+					throw new NodeOperationError(this.getNode(), error as Error);
+				}
+			},
+		},
+	};
+
 	async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
 		const items = this.getInputData();
 		const returnData: INodeExecutionData[] = [];
@@ -165,13 +227,13 @@ export class OptimizelyFindCluster implements INodeType {
 					returnData.push(...executionData);
 				} else if (operation === 'getFindClusterStatus') {
 					const resourceGroupName = this.getNodeParameter('resourceGroupName', itemIndex) as string;
-					const vmName = this.getNodeParameter('vmName', itemIndex) as string;
+					const vmssName = this.getNodeParameter('vmName', itemIndex) as string;
 
-					// 2. Execute Run Command
+					// 2. Execute Run Command (Targeting instance '0' of the VMSS)
 					const apiVersion = '2021-07-01';
 					const options: IHttpRequestOptions = {
 						method: 'POST',
-						url: `https://management.azure.com/subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}/providers/Microsoft.Compute/virtualMachines/${vmName}/runCommand?api-version=${apiVersion}`,
+						url: `https://management.azure.com/subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}/providers/Microsoft.Compute/virtualMachineScaleSets/${vmssName}/virtualMachines/0/runCommand?api-version=${apiVersion}`,
 						headers: {
 							Authorization: `Bearer ${accessToken}`,
 						},
