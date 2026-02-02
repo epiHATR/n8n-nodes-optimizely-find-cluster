@@ -3,6 +3,7 @@ import type {
 	INodeExecutionData,
 	INodeType,
 	INodeTypeDescription,
+	IHttpRequestOptions,
 } from 'n8n-workflow';
 import { NodeConnectionTypes, NodeOperationError } from 'n8n-workflow';
 
@@ -59,35 +60,43 @@ export class OptimizelyFindCluster implements INodeType {
 	async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
 		const items = this.getInputData();
 		const returnData: INodeExecutionData[] = [];
+		const operation = this.getNodeParameter('operation', 0) as string;
 
-		// Iterates over all input items and add the key "myString" with the
-		// value the parameter "myString" resolves to.
-		// (This could be a different value for each item in case it contains an expression)
 		for (let itemIndex = 0; itemIndex < items.length; itemIndex++) {
 			try {
-				// Placeholder for actual API call
-				// const credentials = await this.getCredentials('optimizelyFindClusterApi');
+				if (operation === 'getFindClusters') {
+					const subscriptionId = this.getNodeParameter('subscriptionId', itemIndex) as string;
+					const apiVersion = '2021-04-01'; // Common stable version for Resource Groups
 
-				// For now, just return a success message
-				const responseData = { message: 'Optimizely Find Cluster Node Ready' };
+					const options = {
+						method: 'GET',
+						url: `https://management.azure.com/subscriptions/${subscriptionId}/resourcegroups`,
+						qs: {
+							'api-version': apiVersion,
+						},
+						json: true,
+					} as unknown as IHttpRequestOptions;
 
-				const executionData = this.helpers.constructExecutionMetaData(
-					this.helpers.returnJsonArray(responseData),
-					{ itemData: { item: items[itemIndex].index ?? 0 } }
-				);
+					const response = await this.helpers.httpRequestWithAuthentication.call(
+						this,
+						'optimizelyFindClusterApi',
+						options,
+					);
 
-				returnData.push(...executionData);
+					const resourceGroups = response.value || [];
 
+					const executionData = this.helpers.constructExecutionMetaData(
+						this.helpers.returnJsonArray(resourceGroups),
+						{ itemData: { item: items[itemIndex].index ?? 0 } }
+					);
+
+					returnData.push(...executionData);
+				}
 			} catch (error) {
-				// This node should never fail but we want to showcase how
-				// to handle errors.
 				if (this.continueOnFail()) {
 					items.push({ json: this.getInputData(itemIndex)[0].json, error, pairedItem: itemIndex });
 				} else {
-					// Adding `itemIndex` allows other workflows to handle this error
 					if (error.context) {
-						// If the error thrown already contains the context property,
-						// only append the itemIndex
 						error.context.itemIndex = itemIndex;
 						throw error;
 					}

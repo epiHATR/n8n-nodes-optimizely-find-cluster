@@ -53,11 +53,25 @@ class OptimizelyFindCluster {
         var _a;
         const items = this.getInputData();
         const returnData = [];
+        const operation = this.getNodeParameter('operation', 0);
         for (let itemIndex = 0; itemIndex < items.length; itemIndex++) {
             try {
-                const responseData = { message: 'Optimizely Find Cluster Node Ready' };
-                const executionData = this.helpers.constructExecutionMetaData(this.helpers.returnJsonArray(responseData), { itemData: { item: (_a = items[itemIndex].index) !== null && _a !== void 0 ? _a : 0 } });
-                returnData.push(...executionData);
+                if (operation === 'getFindClusters') {
+                    const subscriptionId = this.getNodeParameter('subscriptionId', itemIndex);
+                    const apiVersion = '2021-04-01';
+                    const options = {
+                        method: 'GET',
+                        url: `https://management.azure.com/subscriptions/${subscriptionId}/resourcegroups`,
+                        qs: {
+                            'api-version': apiVersion,
+                        },
+                        json: true,
+                    };
+                    const response = await this.helpers.httpRequestWithAuthentication.call(this, 'optimizelyFindClusterApi', options);
+                    const resourceGroups = response.value || [];
+                    const executionData = this.helpers.constructExecutionMetaData(this.helpers.returnJsonArray(resourceGroups), { itemData: { item: (_a = items[itemIndex].index) !== null && _a !== void 0 ? _a : 0 } });
+                    returnData.push(...executionData);
+                }
             }
             catch (error) {
                 if (this.continueOnFail()) {
