@@ -145,8 +145,9 @@ class OptimizelyFindCluster {
         this.methods = {
             loadOptions: {
                 async getVirtualMachines() {
-                    const subscriptionId = this.getCurrentNodeParameter('subscriptionId');
-                    const resourceGroupName = this.getCurrentNodeParameter('resourceGroupName');
+                    const extractName = (idOrName) => idOrName.startsWith('/') ? idOrName.split('/').pop() || idOrName : idOrName;
+                    const subscriptionId = extractName(this.getCurrentNodeParameter('subscriptionId'));
+                    const resourceGroupName = extractName(this.getCurrentNodeParameter('resourceGroupName'));
                     const managementEndpoint = this.getCurrentNodeParameter('managementEndpoint').replace(/\/$/, '');
                     const apiVersion = this.getCurrentNodeParameter('apiVersion');
                     if (!subscriptionId || !resourceGroupName) {
@@ -204,7 +205,8 @@ class OptimizelyFindCluster {
         const operation = this.getNodeParameter('operation', 0);
         for (let itemIndex = 0; itemIndex < items.length; itemIndex++) {
             try {
-                const subscriptionId = this.getNodeParameter('subscriptionId', itemIndex);
+                const extractName = (idOrName) => idOrName.startsWith('/') ? idOrName.split('/').pop() || idOrName : idOrName;
+                const subscriptionId = extractName(this.getNodeParameter('subscriptionId', itemIndex));
                 const managementEndpoint = this.getNodeParameter('managementEndpoint', itemIndex).replace(/\/$/, '');
                 const apiVersion = this.getNodeParameter('apiVersion', itemIndex);
                 const credentials = await this.getCredentials('optimizelyFindClusterApi', itemIndex);
@@ -253,8 +255,8 @@ class OptimizelyFindCluster {
                     returnData.push(...executionData);
                 }
                 else if (operation === 'getFindClusterStatus') {
-                    const resourceGroupName = this.getNodeParameter('resourceGroupName', itemIndex);
-                    const vmName = this.getNodeParameter('vmName', itemIndex);
+                    const resourceGroupName = extractName(this.getNodeParameter('resourceGroupName', itemIndex));
+                    const vmName = extractName(this.getNodeParameter('vmName', itemIndex));
                     const options = {
                         method: 'POST',
                         url: `${managementEndpoint}/subscriptions/${encodeURIComponent(subscriptionId)}/resourceGroups/${encodeURIComponent(resourceGroupName)}/providers/Microsoft.Compute/virtualMachines/${encodeURIComponent(vmName)}/runCommand`,
@@ -271,6 +273,7 @@ class OptimizelyFindCluster {
                             script: [
                                 'curl -s localhost:9200/_cluster/health',
                             ],
+                            parameters: [],
                         },
                         json: true,
                     };
@@ -279,7 +282,7 @@ class OptimizelyFindCluster {
                     returnData.push(...executionData);
                 }
                 else if (operation === 'getFindClusterMasterNodes') {
-                    const resourceGroupName = this.getNodeParameter('resourceGroupName', itemIndex);
+                    const resourceGroupName = extractName(this.getNodeParameter('resourceGroupName', itemIndex));
                     const options = {
                         method: 'GET',
                         url: `${managementEndpoint}/subscriptions/${encodeURIComponent(subscriptionId)}/resourceGroups/${encodeURIComponent(resourceGroupName)}/providers/Microsoft.Compute/virtualMachines`,
@@ -305,8 +308,8 @@ class OptimizelyFindCluster {
                     returnData.push(...executionData);
                 }
                 else if (operation === 'runAzureVmCommand') {
-                    const resourceGroupName = this.getNodeParameter('resourceGroupName', itemIndex);
-                    const vmName = this.getNodeParameter('vmName', itemIndex);
+                    const resourceGroupName = extractName(this.getNodeParameter('resourceGroupName', itemIndex));
+                    const vmName = extractName(this.getNodeParameter('vmName', itemIndex));
                     const commandId = this.getNodeParameter('commandId', itemIndex);
                     const script = this.getNodeParameter('script', itemIndex);
                     const options = {
@@ -322,7 +325,8 @@ class OptimizelyFindCluster {
                         },
                         body: {
                             commandId,
-                            script: script.split('\n'),
+                            script: script.split('\n').map(l => l.trim()).filter(l => l.length > 0),
+                            parameters: [],
                         },
                         json: true,
                     };
