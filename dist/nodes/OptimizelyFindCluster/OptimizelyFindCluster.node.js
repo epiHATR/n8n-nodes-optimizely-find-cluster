@@ -133,6 +133,11 @@ class OptimizelyFindCluster {
                     if (nameFilter) {
                         resourceGroups = resourceGroups.filter((rg) => rg.name && rg.name.toLowerCase().startsWith(nameFilter.toLowerCase()));
                     }
+                    resourceGroups = resourceGroups.map((rg) => ({
+                        ...rg,
+                        subscriptionId,
+                        clusterName: rg.name,
+                    }));
                     const executionData = this.helpers.constructExecutionMetaData(this.helpers.returnJsonArray(resourceGroups), { itemData: { item: (_a = items[itemIndex].index) !== null && _a !== void 0 ? _a : 0 } });
                     returnData.push(...executionData);
                 }

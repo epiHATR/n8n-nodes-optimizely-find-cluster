@@ -151,6 +151,12 @@ export class OptimizelyFindCluster implements INodeType {
 						);
 					}
 
+					resourceGroups = resourceGroups.map((rg: Record<string, unknown>) => ({
+						...rg,
+						subscriptionId,
+						clusterName: rg.name as string,
+					}));
+
 					const executionData = this.helpers.constructExecutionMetaData(
 						this.helpers.returnJsonArray(resourceGroups),
 						{ itemData: { item: items[itemIndex].index ?? 0 } }
