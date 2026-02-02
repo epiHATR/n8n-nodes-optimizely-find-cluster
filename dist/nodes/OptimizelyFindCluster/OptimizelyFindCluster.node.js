@@ -164,7 +164,7 @@ class OptimizelyFindCluster {
                                 grant_type: 'client_credentials',
                                 client_id: credentials.applicationId,
                                 client_secret: credentials.applicationSecret,
-                                resource: 'https://management.core.windows.net/',
+                                resource: 'https://management.azure.com/',
                             },
                             json: true,
                         };
@@ -216,7 +216,7 @@ class OptimizelyFindCluster {
                         grant_type: 'client_credentials',
                         client_id: credentials.applicationId,
                         client_secret: credentials.applicationSecret,
-                        resource: 'https://management.core.windows.net/',
+                        resource: 'https://management.azure.com/',
                     },
                     json: true,
                 };

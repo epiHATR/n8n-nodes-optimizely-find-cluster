@@ -175,7 +175,7 @@ export class OptimizelyFindCluster implements INodeType {
 							grant_type: 'client_credentials',
 							client_id: credentials.applicationId,
 							client_secret: credentials.applicationSecret,
-							resource: 'https://management.core.windows.net/',
+							resource: 'https://management.azure.com/',
 						},
 						json: true,
 					};
@@ -233,7 +233,7 @@ export class OptimizelyFindCluster implements INodeType {
 						grant_type: 'client_credentials',
 						client_id: credentials.applicationId,
 						client_secret: credentials.applicationSecret,
-						resource: 'https://management.core.windows.net/',
+						resource: 'https://management.azure.com/',
 					},
 					json: true,
 				};
