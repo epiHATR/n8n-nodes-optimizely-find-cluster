@@ -50,6 +50,13 @@ export class OptimizelyFindCluster implements INodeType {
 				],
 				default: 'getFindClusters',
 			},
+			{
+				displayName: 'Name Filter (Prefix)',
+				name: 'nameFilter',
+				type: 'string',
+				default: '',
+				description: 'Only return resource groups whose names start with this string',
+			},
 		],
 	};
 
@@ -102,7 +109,14 @@ export class OptimizelyFindCluster implements INodeType {
 					};
 
 					const response = await this.helpers.httpRequest(options);
-					const resourceGroups = response.value || [];
+					let resourceGroups = response.value || [];
+
+					const nameFilter = this.getNodeParameter('nameFilter', itemIndex, '') as string;
+					if (nameFilter) {
+						resourceGroups = resourceGroups.filter((rg: { name: string }) =>
+							rg.name && rg.name.toLowerCase().startsWith(nameFilter.toLowerCase())
+						);
+					}
 
 					const executionData = this.helpers.constructExecutionMetaData(
 						this.helpers.returnJsonArray(resourceGroups),

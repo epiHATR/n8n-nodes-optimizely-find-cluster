@@ -46,6 +46,13 @@ class OptimizelyFindCluster {
                     ],
                     default: 'getFindClusters',
                 },
+                {
+                    displayName: 'Name Filter (Prefix)',
+                    name: 'nameFilter',
+                    type: 'string',
+                    default: '',
+                    description: 'Only return resource groups whose names start with this string',
+                },
             ],
         };
     }
@@ -88,7 +95,11 @@ class OptimizelyFindCluster {
                         json: true,
                     };
                     const response = await this.helpers.httpRequest(options);
-                    const resourceGroups = response.value || [];
+                    let resourceGroups = response.value || [];
+                    const nameFilter = this.getNodeParameter('nameFilter', itemIndex, '');
+                    if (nameFilter) {
+                        resourceGroups = resourceGroups.filter((rg) => rg.name && rg.name.toLowerCase().startsWith(nameFilter.toLowerCase()));
+                    }
                     const executionData = this.helpers.constructExecutionMetaData(this.helpers.returnJsonArray(resourceGroups), { itemData: { item: (_a = items[itemIndex].index) !== null && _a !== void 0 ? _a : 0 } });
                     returnData.push(...executionData);
                 }
