@@ -10,7 +10,7 @@ class OptimizelyFindCluster {
             icon: { light: 'file:example.svg', dark: 'file:example.dark.svg' },
             group: ['input'],
             version: 1,
-            subtitle: '={{ $parameter["operation"] + ": " + $parameter["resource"] }}',
+            subtitle: '={{ $parameter["operation"] }}',
             description: 'Interact with Optimizely Find Cluster',
             defaults: {
                 name: 'Optimizely Find Cluster',

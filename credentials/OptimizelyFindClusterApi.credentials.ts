@@ -1,6 +1,7 @@
 import {
     ICredentialType,
     INodeProperties,
+    ICredentialTestRequest,
 } from 'n8n-workflow';
 
 export class OptimizelyFindClusterApi implements ICredentialType {
@@ -15,6 +16,12 @@ export class OptimizelyFindClusterApi implements ICredentialType {
             name: 'authUrl',
             type: 'string',
             default: 'https://login.microsoftonline.com/',
+        },
+        {
+            displayName: 'Tenant ID',
+            name: 'tenantId',
+            type: 'string',
+            default: '',
         },
         {
             displayName: 'Application ID',
@@ -38,10 +45,20 @@ export class OptimizelyFindClusterApi implements ICredentialType {
             default: '',
         },
     ];
-    test = {
+    test: ICredentialTestRequest = {
         request: {
             baseURL: '={{$credentials.authUrl}}',
-            url: '',
+            url: '={{$credentials.tenantId}}/oauth2/token',
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: {
+                grant_type: 'client_credentials',
+                client_id: '={{$credentials.applicationId}}',
+                client_secret: '={{$credentials.applicationSecret}}',
+                resource: 'https://management.core.windows.net/',
+            },
         },
     };
 }

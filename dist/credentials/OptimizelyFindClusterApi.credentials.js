@@ -15,6 +15,12 @@ class OptimizelyFindClusterApi {
                 default: 'https://login.microsoftonline.com/',
             },
             {
+                displayName: 'Tenant ID',
+                name: 'tenantId',
+                type: 'string',
+                default: '',
+            },
+            {
                 displayName: 'Application ID',
                 name: 'applicationId',
                 type: 'string',
@@ -39,7 +45,17 @@ class OptimizelyFindClusterApi {
         this.test = {
             request: {
                 baseURL: '={{$credentials.authUrl}}',
-                url: '',
+                url: '={{$credentials.tenantId}}/oauth2/token',
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: {
+                    grant_type: 'client_credentials',
+                    client_id: '={{$credentials.applicationId}}',
+                    client_secret: '={{$credentials.applicationSecret}}',
+                    resource: 'https://management.core.windows.net/',
+                },
             },
         };
     }

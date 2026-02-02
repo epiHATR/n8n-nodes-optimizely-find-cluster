@@ -13,7 +13,7 @@ export class OptimizelyFindCluster implements INodeType {
 		icon: { light: 'file:example.svg', dark: 'file:example.dark.svg' },
 		group: ['input'],
 		version: 1,
-		subtitle: '={{ $parameter["operation"] + ": " + $parameter["resource"] }}',
+		subtitle: '={{ $parameter["operation"] }}',
 		description: 'Interact with Optimizely Find Cluster',
 		defaults: {
 			name: 'Optimizely Find Cluster',
@@ -28,8 +28,6 @@ export class OptimizelyFindCluster implements INodeType {
 		],
 		usableAsTool: true,
 		properties: [
-			// Node properties which the user gets displayed and
-			// can change on the node.
 			{
 				displayName: 'Operation',
 				name: 'operation',
